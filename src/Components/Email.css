@@ -1,0 +1,13 @@
+.react-tagsinput-tag {
+  border-color: #00000099 !important;
+  background-color: #00000099 !important; /* Set your desired chip color */
+  color: #fff !important; /* Set the text color of the chip */
+}
+
+.react-tagsinput {
+  border-color: #00000044; /* Set your desired border color */
+}
+
+.react-tagsinput--focused {
+  border-color: #00000044; /* Set your desired border color when focused */
+}
