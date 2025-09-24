@@ -53,7 +53,7 @@ function App() {
         setInitialLoading(false);
       });
 
-      ZOHO.CRM.UI.Resize({ height: "500", width: "900" }).then(function (data) {
+      ZOHO.CRM.UI.Resize({ height: "400", width: "900" }).then(function (data) {
         // console.log(data);
       });
     });
@@ -209,6 +209,7 @@ function App() {
                 display: "flex",
                 justifyContent: "center",
                 gap: "1rem",
+                mt: 3,
               }}
             >
               <Button
