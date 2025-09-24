@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Snackbar,
   TextField,
+  Typography,
 } from "@mui/material";
 import MuiAlert from "@mui/material/Alert";
 import React, { useEffect, useState } from "react";
@@ -22,6 +23,8 @@ function App() {
   const [initailLoading, setInitialLoading] = useState(true);
   const [entity, setEntity] = useState();
   const [entityId, setEntityId] = useState();
+  const [recordData, setRecordData] = useState();
+  const [effectiveDate, setEffectiveDate] = useState(null);
   const [newEndDate, setNewEndDate] = useState();
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -44,9 +47,9 @@ function App() {
         RecordID: data?.EntityId,
       }).then(async function (data) {
         let resp = data?.data[0];
-        setNewEndDate(
-          resp?.New_End_Date ? resp?.New_End_Date : resp?.Work_Order_End_Date
-        );
+        setRecordData(resp);
+        setNewEndDate(resp?.New_End_Date ? resp?.New_End_Date : null);
+        setEffectiveDate(resp?.Effective_Date ? resp?.Effective_Date : null);
         setInitialLoading(false);
       });
 
@@ -59,33 +62,58 @@ function App() {
   }, []);
 
   const handleUpdate = async () => {
-    setLoading(true);
-    const config = {
-      Entity: entity,
-      APIData: {
-        id: entityId,
-        Request_MSA: true,
-        New_End_Date: newEndDate,
-      },
-      Trigger: [],
-    };
-    await ZOHO.CRM.API.updateRecord(config).then(async function (data) {
-      if (data?.data[0]?.message === "record updated") {
-        setSeverity("success");
-        setSnackbarMessage("Updated Successfully..");
-        setOpenSnackbar(true);
-        setTimeout(() => {
-          ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
-            console.log(data);
-          });
-        }, 2000);
-      } else {
-        setLoading(false);
+    try {
+      if (!effectiveDate) {
         setSeverity("error");
-        setSnackbarMessage("Something went wrong..Please try again later!!!");
+        setSnackbarMessage(
+          "Please select Amendment Effective Date. It is required."
+        );
         setOpenSnackbar(true);
+        return;
       }
-    });
+      if (recordData?.Work_Order_End_Date === newEndDate) {
+        setSeverity("error");
+        setSnackbarMessage(
+          "Current Work Order End Date and New End Date cannot be same."
+        );
+        setOpenSnackbar(true);
+        return;
+      }
+      setLoading(true);
+      const config = {
+        Entity: entity,
+        APIData: {
+          id: entityId,
+          Effective_Date: effectiveDate,
+          New_End_Date: newEndDate,
+        },
+        Trigger: [],
+      };
+      await ZOHO.CRM.API.updateRecord(config).then(async function (data) {
+        if (data?.data[0]?.message === "record updated") {
+          setSeverity("success");
+          setSnackbarMessage("Updated Successfully..");
+          setOpenSnackbar(true);
+          setTimeout(() => {
+            ZOHO.CRM.UI.Popup.closeReload().then(function (data) {
+              console.log(data);
+            });
+          }, 2000);
+        } else {
+          setLoading(false);
+          setSeverity("error");
+          setSnackbarMessage("Something went wrong..Please try again later!!!");
+          setOpenSnackbar(true);
+        }
+      });
+    } catch (err) {
+      setLoading(false);
+      setSeverity("error");
+      setSnackbarMessage(
+        err?.message || "Something went wrong..Please try again later!!!"
+      );
+      setOpenSnackbar(true);
+    }
   };
 
   const handleCancel = () => {
@@ -110,8 +138,45 @@ function App() {
               <img src={logo} alt="logo" />
             </Box>
             <Box
-              sx={{ width: "100%", display: "flex", justifyContent: "center" }}
+              sx={{
+                p: 2,
+                display: "flex",
+                justifyContent: "center",
+                flexDirection: "column",
+                alignItems: "center",
+              }}
             >
+              <Typography>
+                Please enter the Effective date for this amendment (Required)
+                and if you are extending the date through which this work will
+                be performed, Please select a new work order end date:{" "}
+              </Typography>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Amendment Effective Date"
+                  inputProps={{
+                    style: {
+                      height: 18,
+                    },
+                  }}
+                  value={effectiveDate}
+                  onChange={(newValue) => {
+                    setEffectiveDate(dayjs(newValue).format("YYYY-MM-DD"));
+                  }}
+                  PopperProps={{
+                    placement: "right-end",
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      required
+                      sx={{ width: 220, mt: 5 }}
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
                   label="New End Date"
@@ -130,8 +195,7 @@ function App() {
                   renderInput={(params) => (
                     <TextField
                       {...params}
-                      required
-                      sx={{ width: 220, my: 5 }}
+                      sx={{ width: 220, mt: 2 }}
                       size="small"
                       InputLabelProps={{ shrink: true }}
                     />
@@ -142,7 +206,6 @@ function App() {
 
             <Box
               sx={{
-                width: "100%",
                 display: "flex",
                 justifyContent: "center",
                 gap: "1rem",
