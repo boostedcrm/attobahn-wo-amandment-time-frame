@@ -53,7 +53,7 @@ function App() {
         setInitialLoading(false);
       });
 
-      ZOHO.CRM.UI.Resize({ height: "400", width: "900" }).then(function (data) {
+      ZOHO.CRM.UI.Resize({ height: "450", width: "900" }).then(function (data) {
         // console.log(data);
       });
     });
@@ -171,6 +171,29 @@ function App() {
                       {...params}
                       required
                       sx={{ width: 220, mt: 5 }}
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Current End Date"
+                  disabled={true}
+                  inputProps={{
+                    style: {
+                      height: 18,
+                    },
+                  }}
+                  value={recordData?.Work_Order_End_Date}
+                  PopperProps={{
+                    placement: "right-end",
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      sx={{ width: 220, mt: 2 }}
                       size="small"
                       InputLabelProps={{ shrink: true }}
                     />
