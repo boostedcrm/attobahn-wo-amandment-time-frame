@@ -25,7 +25,7 @@ function App() {
   const [entityId, setEntityId] = useState();
   const [recordData, setRecordData] = useState();
   const [effectiveDate, setEffectiveDate] = useState(null);
-  const [newEndDate, setNewEndDate] = useState();
+  const [newEndDate, setNewEndDate] = useState(null);
   const [loading, setLoading] = useState(false);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -161,7 +161,11 @@ function App() {
                   }}
                   value={effectiveDate}
                   onChange={(newValue) => {
-                    setEffectiveDate(dayjs(newValue).format("YYYY-MM-DD"));
+                    if (newValue) {
+                      setEffectiveDate(dayjs(newValue).format("YYYY-MM-DD"));
+                    } else {
+                      setEffectiveDate(null);
+                    }
                   }}
                   PopperProps={{
                     placement: "right-end",
@@ -177,54 +181,61 @@ function App() {
                   )}
                 />
               </LocalizationProvider>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="Current End Date"
-                  disabled={true}
-                  inputProps={{
-                    style: {
-                      height: 18,
-                    },
-                  }}
-                  value={recordData?.Work_Order_End_Date}
-                  PopperProps={{
-                    placement: "right-end",
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      sx={{ width: 220, mt: 2 }}
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <DatePicker
-                  label="New End Date"
-                  inputProps={{
-                    style: {
-                      height: 18,
-                    },
-                  }}
-                  value={newEndDate}
-                  onChange={(newValue) => {
-                    setNewEndDate(dayjs(newValue).format("YYYY-MM-DD"));
-                  }}
-                  PopperProps={{
-                    placement: "right-end",
-                  }}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      sx={{ width: 220, mt: 2 }}
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
+              <Box sx={{ mr: 30 }}>
+                {" "}
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Current End Date"
+                    disabled={true}
+                    inputProps={{
+                      style: {
+                        height: 18,
+                      },
+                    }}
+                    value={recordData?.Work_Order_End_Date}
+                    PopperProps={{
+                      placement: "right-end",
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        sx={{ width: 220, mt: 2, mr: 2 }}
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="New End Date"
+                    inputProps={{
+                      style: {
+                        height: 18,
+                      },
+                    }}
+                    value={newEndDate}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        setNewEndDate(dayjs(newValue).format("YYYY-MM-DD"));
+                      } else {
+                        setNewEndDate(null);
+                      }
+                    }}
+                    PopperProps={{
+                      placement: "right-end",
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        sx={{ width: 220, mt: 2 }}
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    )}
+                  />
+                </LocalizationProvider>
+              </Box>
             </Box>
 
             <Box
